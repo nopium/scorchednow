@@ -21,7 +21,26 @@
             height: 7
         };
         var colors = ['rgb(255, 255, 0)', 'rgb(0, 255, 0)', 'rgb(0, 0, 255)', 'rgb(255, 0, 255)'];
+
 		path.fillColor = 'black';
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Interface
+
+	var values = {
+		fixLength: false,
+		fixAngle: false,
+		showCircle: false,
+		showAngleLength: true,
+		showCoordinates: false
+	};
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Vector
+
+	var vectorStart, vector, vectorPrevious;
+	var vectorItem, items, dashedItems;
+
 		initializePath();
        // addTanks();
 
@@ -32,15 +51,22 @@
 			height = view.size.height / 2;
 			path.segments = [];
 			path.add(view.bounds.bottomLeft);
+            var tankPoints = [];
 			for (var i = 1; i < points; i++) {
 				var point = new Point(width / points * i, center.y);
 				path.add(point);
+                tankPoints.push( point );
 			}
 			path.add(view.bounds.bottomRight);
 			path.fullySelected = true;
             if (smooth)
 				path.smooth();
 
+            var tankPosition = Math.floor( Math.random()*tankPoints.length );
+
+            vectorStart = tankPoints[ tankPosition ];
+            var ev = {point: new Point(vectorStart.x+50, vectorStart.y-50) };
+            processVector(ev, false);
 		}
 
         function addTanks()
@@ -104,22 +130,6 @@
 			initializePath();
 		}
 
-	////////////////////////////////////////////////////////////////////////////////
-	// Interface
-
-	var values = {
-		fixLength: false,
-		fixAngle: false,
-		showCircle: false,
-		showAngleLength: true,
-		showCoordinates: false
-	};
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Vector
-
-	var vectorStart, vector, vectorPrevious;
-	var vectorItem, items, dashedItems;
 
 	function processVector(event, drag) {
 		vector = event.point - vectorStart;
@@ -144,8 +154,11 @@
 		if (vectorItem)
 			vectorItem.remove();
 		items = [];
+
 		var arrowVector = vector.normalize(10);
+
 		var end = vectorStart + vector;
+
 		vectorItem = new Group([
 			new Path([vectorStart, end]),
 			new Path([
@@ -154,14 +167,19 @@
 				end + arrowVector.rotate(-135)
 			])
 		]);
+
+
 		vectorItem.strokeWidth = 0.75;
 		vectorItem.strokeColor = '#e4141b';
+
+
 		// Display:
 		dashedItems = [];
 		// Draw Circle
 		if (values.showCircle) {
 			dashedItems.push(new Path.Circle(vectorStart, vector.length));
 		}
+
 		// Draw Labels
 		if (values.showAngleLength) {
 			drawAngle(vectorStart, vector, !drag);
