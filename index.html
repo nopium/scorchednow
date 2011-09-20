@@ -5,8 +5,8 @@
 	<title>Smoothing</title>
 	<!-- <link rel="stylesheet" href="style.css"> -->
 	<script type="text/javascript" src="paper.js"></script>
-    <script type="text/javascript" src="ball.js"></script>
-  <!--  <script type="text/javascript" src="vector.js"></script> -->
+ <!--    <script type="text/javascript" src="ball.js"></script>
+   <script type="text/javascript" src="vector.js"></script> -->
 
     <script type="text/javascript" src="http://localhost:8080/nowjs/now.js"></script>
 
@@ -19,6 +19,7 @@
 		var pathHeight = mousePos.y;
         var tanksNumber = 2;
         var tanks = [];
+        var possibleTankPoints = [];
         var tank = {
             width: 15,
             height: 7
@@ -41,39 +42,79 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// Vector
 
-	var vectorStart, vector, vectorPrevious;
+//	var vectorStart, vector, vectorPrevious;
 	var vectorItem, items, dashedItems;
 
-		initializePath();
+	var currentLogin;	
        // addTanks();
-  now.ready(function(){
-    // "Hello World!" will print on server
-    now.logStuff("Hello World!");
-  });
+    now.ready(function(){
+        // "Hello World!" will print on server
+        currentLogin =  "_"+Math.random()*100;
+        now.logStuff("Hello World! From "+currentLogin );
+     
+        points = now.scene.land.points;
+        initializePath();
 
-		function initializePath() {
+        //запишемся на сервере что залогинился новый игрок и разошлем всем
+        //var message = {"name": "login", "title": currentLogin, "tankPoints": tankPoints };
+        var message = {};
+        message.type = "login";
+//        message.title = currentLogin;
+
+        now.distribute( message );
+
+    });
+
+    now.receive = function(name, message)
+    {
+
+/*
+      //залогинился другой игрок
+      if (message.name==="login" && message.title !== currentLogin )
+      {
+            
+      }*/
+      //залогинился я
+
+      if (message.type==="login")
+      {
+        refreshTanks();
+      }
+
+   }
+
+   function refreshTanks()
+   {
+console.log( now.players  );  
+        for (var player in now.players)
+        {
+            var tankPosition = now.players[player].tankPosition;
+ 
+            var vectorStart = possibleTankPoints[ tankPosition ];    
+            
+            var ev = { point: new Point(vectorStart.x+50, vectorStart.y-50) };
+            processVector(vectorStart, ev, false);
+        }
+   }
+
+   function initializePath() {
 
 			center = view.center;
 			width = view.size.width;
 			height = view.size.height / 2;
 			path.segments = [];
 			path.add(view.bounds.bottomLeft);
-            var tankPoints = [];
+
 			for (var i = 1; i < points; i++) {
 				var point = new Point(width / points * i, center.y);
 				path.add(point);
-                tankPoints.push( point );
+                possibleTankPoints.push( point );
 			}
 			path.add(view.bounds.bottomRight);
 			path.fullySelected = true;
             if (smooth)
 				path.smooth();
 
-            var tankPosition = Math.floor( Math.random()*tankPoints.length );
-
-            vectorStart = tankPoints[ tankPosition ];
-            var ev = {point: new Point(vectorStart.x+50, vectorStart.y-50) };
-            processVector(ev, false);
 		}
 
         function addTanks()
@@ -138,8 +179,9 @@
 		}
 
 
-	function processVector(event, drag) {
+	function processVector(vectorStart, event, drag) {
 		vector = event.point - vectorStart;
+/*
 		if (vectorPrevious) {
 			if (values.fixLength && values.fixAngle) {
 				vector = vectorPrevious;
@@ -149,10 +191,11 @@
 				vector = vector.project(vectorPrevious);
 			}
 		}
-		drawVector(drag);
+        */
+		drawVector(vectorStart, vector, drag);
 	}
 
-	function drawVector(drag) {
+	function drawVector(vectorStart, vector, drag) {
 		if (items) {
 			for (var i = 0, l = items.length; i < l; i++) {
 				items[i].remove();
@@ -279,7 +322,7 @@
 	// Mouse Handling
 
 	var dashItem;
-
+/*
 	function onMouseDown(event) {
         
 		var end = vectorStart + vector;
@@ -316,6 +359,7 @@
 		}
 		vectorPrevious = vector;
 	}
+*/
 	</script>
 </head>
 <body>
