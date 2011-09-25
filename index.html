@@ -49,8 +49,9 @@
         initializePath();
         var t = new Tank();
         var a = new Point({"x":50, "y":50 });
-        var b = new Point({"x":60, "y":60 });
-        t.processVector(a, b);
+        var b = new Point({"x":100, "y":100 });
+        
+        t.processVector(a, b-a);
     });
 
 

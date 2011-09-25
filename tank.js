@@ -4,9 +4,9 @@ function Tank(){
 	var vectorStart, vector, vectorPrevious;
 	var vectorItem, items, dashedItems;
 
-	this.processVector= function(vectorStart, vectorEnd) {
-console.log(vectorStart, vectorEnd);
-		vector = vectorEnd - vectorStart;
+	this.processVector= function(a, ba) {
+        vectorStart = a;
+		vector = ba;
 /*
 		if (vectorPrevious) {
 			if (values.fixLength && values.fixAngle) {
@@ -18,10 +18,15 @@ console.log(vectorStart, vectorEnd);
 			}
 		}
         */
-		this.drawVector(vectorStart);
+		this.drawVector();
 	},
 
-	this.drawVector= function(vectorStart) {
+	this.drawVector= function() {
+console.log('----');
+
+console.log(vectorStart);
+
+console.log(vector);
 		if (items) {
 			for (var i = 0, l = items.length; i < l; i++) {
 				items[i].remove();
@@ -58,7 +63,7 @@ console.log(vectorStart, vectorEnd);
 
 		// Draw Labels
 		if (values.showAngleLength) {
-			drawAngle(vectorStart, vector, !drag);
+			drawAngle(vectorStart, !drag);
 			if (!drag)
 				drawLength(vectorStart, end, vector.angle < 0 ? -1 : 1, true);
 		}
@@ -82,7 +87,7 @@ console.log(vectorStart, vectorEnd);
 		values.angle = vector.angle;
 	},
 
-	this.drawAngle= function(center, vector, label) {
+	this.drawAngle= function(center, label) {
 		var radius = 25, threshold = 10;
 		if (vector.length < radius + threshold || Math.abs(vector.angle) < 15)
 			return;
